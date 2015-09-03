@@ -1,0 +1,4 @@
+1. xls -> csv 변환 
+2. csv -> ETC항목 parsing -> sqlite3 에 입력 
+3. 공격명 별 카운팅 
+4. 리포트 
