@@ -3,87 +3,13 @@
 
 from os import walk
 import sys, os.path, glob, HTMLParser, re
-import csv, sqlite3
-
-#public
-WAP = []#{}
+import csv
 
 # ###
 def update_completed(filename) :
   fp = open(complete_list, 'a')
   fp.write(filename+'\n')
   fp.close()
-
-def csv_to_daily(csvfile) :
-  fp = open(csvfile, 'r')
-  c = 0
-  for line in fp :
-    l = line[:-1].split(',')
-    if l[0] == '""' or l[0] == '"No"' : continue
-    # "No","시간","장비","애플리케이션","도메인","공격명","서버","클라이언트","차단여부","증거ID","로그ID","애플리케이션ID","입력인터페이스","URL","URL인수","데이터","기타"
-    key = (l[1]+'.'+l[0]).replace('"','')
-    wa_name = l[5].replace('"','')
-
-    if wa_name in WAP :
-        continue
-    else :
-        WAP.append(wa_name)
-    """
-    if wa_name == '웹공격' :
-      continue
-      WAP[key] = l
-    elif wa_name == '요청형식검사(메소드)' :
-      continue
-    elif wa_name == '접근제어(차단URL)' :
-      continue
-    elif wa_name == '디렉토리리스팅' :
-      continue
-
-    print key, wa_name, l[8], l[16:]
-    c += 1
-    if c % 10 == 0 :
-      break
-    """
-# ###
-
-## TEST ###
-csv_to_daily('../datas/wflog_web_1441174509.csv')
-print len(WAP), WAP
-for w in WAP :
-    print w
-sys.exit()
-## ###
-
-mypath = "../datas"
-complete_list = mypath + "/.completed"
-c_fp = open(complete_list,'r')
-c_files = c_fp.readlines()
-
-for (dirpath, dirnames, filenames) in walk(mypath) :
-  for filename in filenames :
-    if not filename.endswith(".xls"):
-      continue
-    xls_filename = dirpath + '/' + filename
-    if xls_filename+'\n' in c_files :
-      continue
-    html2csv(xls_filename)
-    update_completed(xls_filename)
-
-  combined_csv_filename = dirpath + '/' + 'wflog_web.csv'
-  for filename in filenames :
-    if not filename.endswith(".csv"):
-        continue
-    csv_filename = dirpath + '/' + filename
-    if csv_filename+'\n' in c_files :
-      continue
-    #print csv_filename
-    #csv_to_daily(csv_filename)
-    update_completed(csv_filename)
-
-
-
-
-
 
 class html2csv(HTMLParser.HTMLParser):
     ''' A basic parser which converts HTML tables into CSV.
@@ -158,17 +84,47 @@ class html2csv(HTMLParser.HTMLParser):
         return dataout
 
 
-def html2csv(filename):
+def html_to_csv_file(filename):
     outputfilename = os.path.splitext(filename)[0]+'.csv'
     parser = html2csv()
-    htmlfile = open(htmlfilename, 'rb')
+    print '%s to %s ... processing' % (filename, outputfilename)
+    htmlfile = open(filename, 'rb')
     csvfile = open( outputfilename, 'w+b')
     data = htmlfile.read(8192)
     while data:
         parser.feed( data )
         csvfile.write( parser.getCSV() )
-        #sys.stdout.write('%d CSV rows written.\r' % parser.rowCount)
+        sys.stdout.write('%d CSV rows written.\r' % parser.rowCount)
         data = htmlfile.read(8192)
     csvfile.write( parser.getCSV(True) )
     csvfile.close()
     htmlfile.close()
+
+
+# main
+mypath = "../datas"
+complete_list = mypath + "/.completed"
+c_fp = open(complete_list,'r')
+c_files = c_fp.readlines()
+
+for (dirpath, dirnames, filenames) in walk(mypath) :
+  for filename in filenames :
+    if not filename.endswith(".xls"):
+      continue
+    xls_filename = dirpath + '/' + filename
+    if xls_filename+'\n' in c_files :
+      continue
+    html_to_csv_file(xls_filename)
+    update_completed(xls_filename)
+"""
+  combined_csv_filename = dirpath + '/' + 'wflog_web.csv'
+  for filename in filenames :
+    if not filename.endswith(".csv"):
+        continue
+    csv_filename = dirpath + '/' + filename
+    if csv_filename+'\n' in c_files :
+      continue
+    #print csv_filename
+    #csv_to_daily(csv_filename)
+    update_completed(csv_filename)
+"""
