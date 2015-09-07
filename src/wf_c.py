@@ -5,9 +5,20 @@ from os import walk
 import sys, os.path, glob, HTMLParser, re
 import csv
 
+def parse_sigid(n) :
+  cat = n[:4]
+  sigid = n[4:]
+  if cat == "1115" : cat = "WAP-"
+  elif cat == "1107" : cat = "XSS-"
+  elif cat == "1106" : cat = "SQL-"
+  elif cat == "1105" : cat = "BOF-"
+  elif cat == "1101" : cat = "ACC-"
+  return cat + sigid
+
 def a_method_1(l) :
   key = (l[1]+'.'+l[0]).replace('"', '')
   etc = ','.join(l[16:]).replace('"', '')
+  sigid = ""
 
   for _l in etc.split(',') :
     _tmp = _l.split('=', 2)
@@ -16,8 +27,15 @@ def a_method_1(l) :
     if _k == "sigid" :
       sigid = _v
       break
+  if l[5] == '"웹공격"' and sigid == "" :
+    sigid = "User-Agent header 없음"
+
   return (key, sigid)
 
+# "157630","2015-08-02 23:15:33","121.156.124.197","ND_TK","tk.newdaily.co.kr",
+# "웹공격","121.156.124.252:80","66.249.79.32:39581","no","1346280971",
+# "1363293591","3","waf","/news/article.html","?no=239238",
+# "","section=warning,forwarded_for=,sig_warning=High,owasp=A4,sigid=111500023"
 
 def analize_csv(csvfile, txtfile):
   WAP = {}
@@ -53,9 +71,12 @@ def analize_csv(csvfile, txtfile):
   print '%s ... reporting' % (txtfile)
   fp = open(txtfile, 'w')
   for sigid in WAP.keys() :
-    fp.write( "%s %d\n" % (sigid, len(WAP[sigid])) )
+    fp.write( "%s %d\n" % (parse_sigid(sigid), len(WAP[sigid])) )
   fp.close()
 
+# test
+#analize_csv("../results/wf_웹공격.csv", "../results/wf_.txt")
+#sys.exit()
 
 # main
 mypath = "../results"
@@ -68,7 +89,3 @@ for (dirpath, dirnames, filenames) in walk(mypath) :
     outputfilename = dirpath + '/' + os.path.splitext(filename)[0]+'.txt'
 
     analize_csv(csv_filename, outputfilename)
-
-
-# test
-#analize_csv("../results/wf_검사회피(더블인코딩).csv", "../results/wf_검사회피(더블인코딩).txt")
