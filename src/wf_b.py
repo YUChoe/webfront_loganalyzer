@@ -16,6 +16,7 @@ def update_completed(filename) :
 
 def csv_to_WAF_array(csvfile):
   fp = open(csvfile, 'r')
+  print '%s ... processing' % (csvfile)
   c = 0
   for line in fp :
     l = line[:-1].split(',')
@@ -27,7 +28,7 @@ def csv_to_WAF_array(csvfile):
     if wa_name not in WAP :
         WAP[wa_name] = {}
 
-    WAP[wa_name][key] = l
+    WAP[wa_name][key] = line
     #print key, wa_name, l[8], l[16:]
 
     c += 1
@@ -36,8 +37,22 @@ def csv_to_WAF_array(csvfile):
       sys.stdout.flush()
 
 def write_WAF_to_file() :
-  path = '../result'
-  pass
+  path = '../results'
+  for k in WAP.keys() :
+    filename = path + "/wf_" + k + ".csv"
+    print '%s ... processing' % (filename)
+    fp = open(filename, 'w')
+    c = 0
+
+    for timeline in WAP[k] :
+      fp.write(WAP[k][timeline] + '\n')
+      c += 1
+      if c % 250 == 0 :
+        sys.stdout.write('+')
+        sys.stdout.flush()
+    sys.stdout.write('\n')
+    fp.close()
+
 
 # main
 mypath = "../datas"
@@ -56,8 +71,12 @@ for (dirpath, dirnames, filenames) in walk(mypath) :
     csv_to_WAF_array(csv_filename)
     sys.stdout.write('\n')
 
-    for k in WAP.keys() :
-      print k, len(WAP[k])
-
-    #sys.exit()
     #update_completed(csv_filename)
+
+# report
+fp = open("../results/summery.txt", 'w')
+for k in WAP.keys() :
+  fp.write( "%s %d\n" % (k, len(WAP[k])) )
+fp.close()
+
+write_WAF_to_file()
