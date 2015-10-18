@@ -1,15 +1,20 @@
-### wf_a
-* ~/datas 디렉토리 안의 xls -> csv 변환 
-* 중복 작업 하지 않도록 ~/datas/.completed 에 기록 
+## PIOLINK Webfront / AV2 log 분석
 
-### wf_b 
-* ~/datas/*.csv -> ~/results/wf_"공격명".csv 출력
-* ~/results/summery.txt 합계표 출력 
-* 중복 작업 하지 않도록 ~/datas/.csv.completed 에 기록 
+![screen shot 2015-10-18 at 15 30 05](https://cloud.githubusercontent.com/assets/819903/10562891/39e8b9ce-75ad-11e5-967b-fd1290f05fb5.png)
 
-### wf_c
-* ~/results/*.csv 에 sigid 등의 공격 유형 별로 *_report.txt 출력 
+### License 
+* GPLv2
+* PIOLINK, WEBFRONT-K 는 (주)파이오링크의 상표 입니다. 
 
-### 주의
-* 모든 작업의 관건은 AV2의 GUI에서 xls 파일을 기간별로 추출 하는 것. 
-* 현재 실패/오류 확률 99% 
+### features 
+* QT(pySide)로 작성되어 MS-windows 에서 작동 
+* AV2의 "xls파일로 저장" 기능을 통해 기간별로 추출
+* 추출 한 내용을 CVS로 변환 -> 공격유형별로 구분 
+* 간단한 리포트를 txt 파일의 형태로 저장 기능 
+
+### TODO 
+* 월별 리포트 외 다른 기간 별 리포트 기능 지원 
+* 파일 저장 최적화 
+* 공격유형별 리포트 미완성인 부분들 자동화  
+* 리포트를 CSV나 PDF 로 출력 할 수 있도록 포맷 지원 
+
