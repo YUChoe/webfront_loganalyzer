@@ -1,17 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-from os import walk
-import sys, os.path, glob, HTMLParser, re
-import csv
+from html.parser import HTMLParser
+import re
 
-# ###
-def update_completed(filename) :
-  fp = open(complete_list, 'a')
-  fp.write(filename+'\n')
-  fp.close()
-
-class html2csv(HTMLParser.HTMLParser):
+class html2csv(HTMLParser): # (HTMLParser.HTMLParser):
     ''' A basic parser which converts HTML tables into CSV.
         Feed HTML with feed(). Get CSV with getCSV(). (See example below.)
         All tables in HTML will be converted to CSV (in the order they occur
@@ -37,7 +30,7 @@ class html2csv(HTMLParser.HTMLParser):
             - convert html entities (&name; and &#ref;) to Ascii.
             '''
     def __init__(self):
-        HTMLParser.HTMLParser.__init__(self)
+        HTMLParser.__init__(self)
         self.CSV = ''      # The CSV data
         self.CSVrow = ''   # The current CSV row beeing constructed from HTML
         self.inTD = 0      # Used to track if we are inside or outside a <TD>...</TD> tag.
@@ -83,48 +76,3 @@ class html2csv(HTMLParser.HTMLParser):
         self.CSV = ''
         return dataout
 
-
-def html_to_csv_file(filename):
-    outputfilename = os.path.splitext(filename)[0]+'.csv'
-    parser = html2csv()
-    print '%s to %s ... processing' % (filename, outputfilename)
-    htmlfile = open(filename, 'rb')
-    csvfile = open( outputfilename, 'w+b')
-    data = htmlfile.read(8192)
-    while data:
-        parser.feed( data )
-        csvfile.write( parser.getCSV() )
-        sys.stdout.write('%d CSV rows written.\r' % parser.rowCount)
-        data = htmlfile.read(8192)
-    csvfile.write( parser.getCSV(True) )
-    csvfile.close()
-    htmlfile.close()
-
-
-# main
-mypath = "../datas"
-complete_list = mypath + "/.completed"
-c_fp = open(complete_list,'r')
-c_files = c_fp.readlines()
-
-for (dirpath, dirnames, filenames) in walk(mypath) :
-  for filename in filenames :
-    if not filename.endswith(".xls"):
-      continue
-    xls_filename = dirpath + '/' + filename
-    if xls_filename+'\n' in c_files :
-      continue
-    html_to_csv_file(xls_filename)
-    update_completed(xls_filename)
-"""
-  combined_csv_filename = dirpath + '/' + 'wflog_web.csv'
-  for filename in filenames :
-    if not filename.endswith(".csv"):
-        continue
-    csv_filename = dirpath + '/' + filename
-    if csv_filename+'\n' in c_files :
-      continue
-    #print csv_filename
-    #csv_to_daily(csv_filename)
-    update_completed(csv_filename)
-"""
